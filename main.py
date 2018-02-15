@@ -359,7 +359,7 @@ class Sample(Frame):
 			#stream = ffmpeg.output(stream, '/tmp/testwav.wav')
 			#ffmpeg.run(stream)
 
-class MyFrame(Frame):
+class ManagerFrame(Frame):
 	def __init__(self, master, sd_path):
 		Frame.__init__(self, master)
 		self.root = master
@@ -696,11 +696,8 @@ mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
 mainframe.columnconfigure(0, weight=1)
 mainframe.rowconfigure(0, weight=1)
 
-sd_var = askopenfilename()
-
-manager = MyFrame(mainframe, sd_var)
-
-
+sd_var = askdirectory()#"/media/toban/GRANDPA2"
+manager = ManagerFrame(mainframe, sd_var)
 editor = PresetEditor(nb, sd_var, manager)
 
 nb.add(mainframe, text='Samples')
