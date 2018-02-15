@@ -20,10 +20,8 @@ import simpleaudio as sa
 from _thread import start_new_thread
 import time
 
-import ffmpeg
 import json
 import subprocess
-
 import bitarray
 
 from subprocess import call
