@@ -337,6 +337,8 @@ class Sample(Frame):
 
 	def create_waveform_file(self):
 		subprocess.check_output(["ffmpeg", "-i", self.get_full_path(), "-y", "-filter_complex", "showwavespic=s=640x120", "-frames:v",  "1", self.get_waveform_path()])
+		opendata = PIL.Image.open(self.get_waveform_path())
+		self.waveform_image = PIL.ImageTk.PhotoImage(opendata)
 
 
 	def load_file(self):
@@ -395,6 +397,9 @@ class ManagerFrame(Frame):
 
 		self.button_load = Button(master, text="load", command=self.load_samples, width=10, height=1)
 		self.button_load.grid(row=1, column=2, sticky=W)
+
+		if os.path.exists(self.grandmaPath):
+			self.load_samples()
 
 
 
@@ -463,38 +468,58 @@ class ManagerFrame(Frame):
 		self.button_load.grid_forget()
 
 		self.button_new = Button(self, text="+ add new sample", command=self.add_new, width=20, height=1)
-		self.button_new.grid(row=3, column=1, sticky=W)
+		self.button_new.grid(row=3, column=0, sticky=W)
 
-		self.button_delete_all = Button(self, text="x delete all", command=self.delete_all, width=20, height=1)
-		self.button_delete_all.grid(row=3, column=2, sticky=W)
+		self.button_delete_all = Button(self, text="delete all", command=self.delete_all, width=20, height=1)
+		self.button_delete_all.grid(row=3, column=1, sticky=W)
 
-		self.menu_variable = StringVar(self)
-		self.menu_variable.set("one") # default value
+		self.select_path = Button(self, text="select path", command=self.load_path, width=20, height=1)
+		self.select_path.grid(row=3, column=2, sticky=W)
 
+#		self.menu_variable = StringVar(self)
+#		self.menu_variable.set("one") # default value
 
-
-		self.menu = OptionMenu(self, self.menu_variable, "one", "two", "three")
-		self.menu.grid(row=3, column=3, sticky=W)
+		#self.menu = OptionMenu(self, self.menu_variable, "one", "two", "three")
+		#self.menu.grid(row=3, column=3, sticky=W)
 		
 		self.waveform_image = None
 
+		#self.canvas = Canvas(self, width=640, height=120)
 
+		if self.waveform_image == None:
+
+			self.waveformFrame = Frame(self.master)
+			self.waveformFrame.rowconfigure(1, weight=1)
+			self.waveformFrame.columnconfigure(1, weight=1)
+			self.waveformFrame.grid(sticky=W+E+N+S)
+
+			#print(self.samples[segments[0]].get_waveform_path())
+
+
+			#self.canvas.create_image(20,20, anchor=NW, image=self.waveform_image)
+
+			self.waveform_label = Label(self.waveformFrame, text="ASDASFA")
+			self.waveform_label.grid(row=0, column=0, sticky=W) 
+
+			self.scaler = Scale(self.waveformFrame,fg="black", bg="black", bd=0, from_=0, to=100, orient=HORIZONTAL, length=640, showvalue=False, takefocus=False)
+			self.scaler.grid(row=1, column=0, sticky=N)
+
+
+		counter = 0
 		for file in files:
 			segments = file.split(".")
+
 			if segments[0] in self.valid_names and (segments[1] == "wav" or segments[1] == "WAV"):
-				print(file)
-				self.samples[segments[0]] = Sample(segments[0], file, self.sd_var.get(), self)
 
-				if self.waveform_image == None:
-
-					#print(self.samples[segments[0]].get_waveform_path())
-					opendata = PIL.Image.open(self.samples[segments[0]].get_waveform_path())
+				sample = Sample(segments[0], file, self.sd_var.get(), self)
+				if counter == 0:
+					opendata = PIL.Image.open(sample.get_waveform_path())
 					self.waveform_image = PIL.ImageTk.PhotoImage(opendata)
+					self.waveform_label.configure(image=self.waveform_image)
+				counter += 1
+				self.samples[segments[0]] = sample
 
-					self.waveform_label = Label(self, text="ASDASFA", image=self.waveform_image)
-					self.waveform_label.grid(row=1, column=1, sticky=W) 
-					self.scaler = Scale(self,fg="black", bg="black", bd=0, from_=0, to=100, orient=HORIZONTAL, length=640, showvalue=False, takefocus=False)
-					self.scaler.grid(row=2, column=1, sticky=N)
+
 
 
 	def load_path(self):
@@ -680,6 +705,13 @@ class PresetEditor(Frame):
 root = Tk()
 root.title("GrandMA: GrandPA Manager")
 
+def find_all(name, path):
+    result = []
+    for root, dirs, files in os.walk(path):
+        if name in files:
+            result.append(os.path.join(root, name))
+    return result
+
 def on_closing():
 	
 	#if askokcancel("Quit", "Do you want to quit?"):
@@ -694,7 +726,7 @@ mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
 mainframe.columnconfigure(0, weight=1)
 mainframe.rowconfigure(0, weight=1)
 
-sd_var = askdirectory()#"/media/toban/GRANDPA2"
+sd_var = askdirectory(initialdir="/media/")#"/media/toban/GRANDPA2"
 manager = ManagerFrame(mainframe, sd_var)
 editor = PresetEditor(nb, sd_var, manager)
 

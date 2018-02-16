@@ -16,4 +16,6 @@ GrandMA - Sample &amp; Preset Manager for Bastl Instruments GrandPA
 
 # todo
 - preset editor does not work yet
+- sample editing / offsets
+- why not add support for all ffmpeg filters
 
