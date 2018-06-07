@@ -7,6 +7,7 @@ import PIL
 from tkinter import *
 from tkinter import ttk
 from tkinter.filedialog import askopenfilename
+from tkinter.filedialog import askopenfilenames
 from tkinter.filedialog import askdirectory
 from tkinter.messagebox import askokcancel
 from tkinter.messagebox import showerror
@@ -433,6 +434,10 @@ class ManagerFrame(Frame):
 		for sample in self.samples:
 			self.samples[sample].delete_file()
 
+	def add_new_multi(self):
+		files = askopenfilenames()
+		print(files)
+
 	def add_new(self):
 		name = None
 
@@ -448,8 +453,12 @@ class ManagerFrame(Frame):
 	def remove(self, sample):
 
 		if askokcancel("Delete file", "Are you sure wou wanna delete this?"):
-
-			os.remove(sample.get_full_path())
+			try:
+				os.remove(sample.get_full_path())
+				os.remove(sample.get_waveform_path())
+			except OSError:
+				pass
+			
 			sample.grid_forget()
 			the_actual_sample = self.samples[sample.grandpa_name]
 			print(the_actual_sample)
@@ -467,14 +476,17 @@ class ManagerFrame(Frame):
 		self.filename_label.grid_forget()
 		self.button_load.grid_forget()
 
-		self.button_new = Button(self, text="+ add new sample", command=self.add_new, width=20, height=1)
+		self.button_new = Button(self, text="+ add new", command=self.add_new, width=20, height=1)
 		self.button_new.grid(row=3, column=0, sticky=W)
 
+		self.button_new_multi = Button(self, text="+ add multiple", command=self.add_new_multi, width=20, height=1)
+		self.button_new_multi.grid(row=3, column=1, sticky=W)
+
 		self.button_delete_all = Button(self, text="delete all", command=self.delete_all, width=20, height=1)
-		self.button_delete_all.grid(row=3, column=1, sticky=W)
+		self.button_delete_all.grid(row=3, column=2, sticky=W)
 
 		self.select_path = Button(self, text="select path", command=self.load_path, width=20, height=1)
-		self.select_path.grid(row=3, column=2, sticky=W)
+		self.select_path.grid(row=3, column=3, sticky=W)
 
 #		self.menu_variable = StringVar(self)
 #		self.menu_variable.set("one") # default value
@@ -499,7 +511,7 @@ class ManagerFrame(Frame):
 			#self.canvas.create_image(20,20, anchor=NW, image=self.waveform_image)
 
 			self.waveform_label = Label(self.waveformFrame, text="ASDASFA")
-			self.waveform_label.grid(row=0, column=0, sticky=W) 
+			self.waveform_label.grid(row=0, column=0, sticky=N) 
 
 			self.scaler = Scale(self.waveformFrame,fg="black", bg="black", bd=0, from_=0, to=100, orient=HORIZONTAL, length=640, showvalue=False, takefocus=False)
 			self.scaler.grid(row=1, column=0, sticky=N)
@@ -603,7 +615,7 @@ class PresetFrame(Frame):
 			self.load_image(self.get_waveform_path())
 		else:
 			self.waveform_image = None
-		self.waveform_label = Label(self, text="ASDASFA", image=self.waveform_image)
+		self.waveform_label = Label(self, text="PRESET", image=self.waveform_image)
 		self.waveform_label.grid(row=1, column=1, sticky=W) 
 	
 
@@ -689,14 +701,19 @@ class PresetEditor(Frame):
 		self.preset_a = PresetFrame(self, manager)
 		self.preset_b = PresetFrame(self, manager)
 
-		self.listbox = Listbox(self, width=25)
+		self.listboxFrame = Frame(self)
+		self.listboxFrame.rowconfigure(1, weight=1)
+		self.listboxFrame.columnconfigure(1, weight=1)
+		self.listboxFrame.grid(sticky=W+E+N+S)
+
+		self.listbox = Listbox(self.listboxFrame, width=100)
 		self.listbox.grid(row=0, column=1, sticky=S)
 		self.listbox.bind('<<ListboxSelect>>', self.onselect)
 
 		for item in self.get_presets(preset_path):
 			self.listbox.insert(END, item.name)
 
-		self.delete_button = Button(self, text="Delete", command=lambda lb=self.listbox: self.listbox.delete(ANCHOR))
+		self.delete_button = Button(self.listboxFrame, text="Delete", command=lambda lb=self.listbox: self.listbox.delete(ANCHOR))
 		self.delete_button.grid(row=4, column=1, sticky=N)
 
 
