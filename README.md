@@ -6,6 +6,7 @@ GrandMA - Sample &amp; Preset Manager for Bastl Instruments GrandPA
 - automagically names samples added correctly
 - converts anything using ffmpeg to 16bit mono 22Khz
 - audio playback and waveform preview
+- looks like a car-wreck but beats manually managing grandPA format requirements.
 
 # installation
 - install ffmpeg make sure it's runnable from shell
