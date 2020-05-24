@@ -1,6 +1,8 @@
 # grandMA
 GrandMA - Sample &amp; Preset Manager for Bastl Instruments GrandPA
 
+![](./img/demo.png)
+
 - automagically names samples added correctly
 - converts anything using ffmpeg to 16bit mono 22Khz
 - audio playback and waveform preview
