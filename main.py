@@ -30,9 +30,10 @@ import subprocess
 import bitarray
 
 from subprocess import call
+from os import system
+from platform import system as platform
 
-
-
+# set up your Tk Frame and whatnot here...
 
 def calculate(*args):
 	try:
@@ -66,7 +67,14 @@ mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
 mainframe.columnconfigure(0, weight=1)
 mainframe.rowconfigure(0, weight=1)
 
-sd_var = askdirectory(initialdir="/media/")#"/media/toban/GRANDPA2"
+root.update()
+
+if platform() == 'Darwin':
+	initialdir = "/Volumes/"
+else:
+	initialdir = "/media/"
+	
+sd_var = askdirectory(initialdir=initialdir)#"/media/toban/GRANDPA2"
 manager = ManagerFrame(mainframe, sd_var)
 editor = PresetEditor(nb, sd_var, manager)
 

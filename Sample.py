@@ -28,7 +28,8 @@ class Sample(Frame):
 			start += 10.0
 			self.manager.update_playback(self, start)
 			time.sleep(0.01)
-
+		
+		self.manager.root.update()
 		self.manager.update_playback(self, self.total_duration_ms)
 		self.buttonPlay.configure(text="Play")
 
@@ -41,10 +42,12 @@ class Sample(Frame):
 			self.play_obj = self.wave_obj.play()
 			print(self.play_obj)
 			self.manager.show_waveform(self)
+			self.manager.root.update()
 			self.buttonPlay.configure(text="[ Stop ]")
 
 		elif self.play_obj != None and self.play_obj.is_playing():
 			self.play_obj.stop()
+			self.manager.root.update()
 			self.buttonPlay.configure(text="Play")
 
 
@@ -145,13 +148,13 @@ class Sample(Frame):
 		#self.scale = Scale(self.master, from_=0, to=200, orient=HORIZONTAL, width=10)
 		#self.scale.grid(row=2, column=1)
 
-		self.buttonBrowse = Button(self, text="Browse", command=self.load_file, width=4, height=1)
+		self.buttonBrowse = Button(self, text="Browse", command=self.load_file, width=5, height=1)
 		self.buttonBrowse.grid(row=1, column=3, sticky=W)
 
 		self.buttonPlay = Button(self, text="Play", command=self.playback, width=5, height=1)
 		self.buttonPlay.grid(row=1, column=4, sticky=W)
 
-		self.buttonDelete = Button(self, text="Delete", command=self.delete_file, width=3, height=1)
+		self.buttonDelete = Button(self, text="Delete", command=self.delete_file, width=4, height=1)
 		self.buttonDelete.grid(row=1, column=5, sticky=W)
 
 	def delete_file(self):
@@ -164,6 +167,7 @@ class Sample(Frame):
 
 
 	def load_file(self):
+		self.manager.root.update()
 		fname = askopenfilename()
 		if fname:
 
@@ -176,6 +180,7 @@ class Sample(Frame):
 
 			print(out)
 			self.load_wave_file()
+
 
 			#stream = ffmpeg.input(fname + ' ffmpeg-acodec pcm_s16le -ac 1 -ar 16000')
 			#stream = ffmpeg.output(stream, '/tmp/testwav.wav')
