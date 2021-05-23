@@ -1,11 +1,16 @@
 from tkinter import *
 
+from tkinter.filedialog import askopenfilename
 import simpleaudio as sa
 import subprocess
 from os.path import isfile
 import PIL
 from _thread import start_new_thread
 import time
+from tkinter.simpledialog import askstring
+from freesound_api import *
+from dotenv import load_dotenv
+load_dotenv()
 
 def probe_file(filename):
 	cmnd = ['ffprobe', '-show_format', '-pretty', '-loglevel', 'quiet', filename]
@@ -153,6 +158,62 @@ class Sample(Frame):
 		self.buttonDelete = Button(self, text="Delete", command=self.delete_file, width=3, height=1)
 		self.buttonDelete.grid(row=1, column=5, sticky=W)
 
+		self.freeSoundButton = Button(self, text="Freesound", command=self.freesound_query, width=8, height=1)
+		self.freeSoundButton.grid(row=1, column=6, sticky=W)
+
+		self.prevFreeSound = Button(self, text="<", command=self.prev_freesound, width=1, height=1)
+		self.prevFreeSound.grid(row=1, column=7, sticky=W)
+
+		self.nextFreeSound = Button(self, text=">", command=self.next_freesound, width=1, height=1)
+		self.nextFreeSound.grid(row=1, column=8, sticky=W)
+
+		self.freeSoundResult = None
+		self.freeSoundCount = 0
+		self.freeSoundResultIndex = 0
+		API_KEY = os.getenv('FREESOUND_API_KEY')
+		ACCESS_TOKEN = os.getenv('FREESOUND_ACCESS_TOKEN')
+		self.api = FreesoundAPI(API_KEY, ACCESS_TOKEN)
+
+	def prev_freesound(self):
+		self.select_freesound(self.freeSoundResultIndex-1)
+
+	def next_freesound(self):
+		self.select_freesound(self.freeSoundResultIndex+1)
+
+	def select_freesound(self, index):
+		counter = 0
+		print("num items:" + str(len(self.freeSoundResult['results'])))
+		print("loading: " + str(index))
+		for i in self.freeSoundResult['results']:
+			if counter != index:
+				counter+=1
+				continue
+
+			print("downloading: " + str(counter))
+
+			self.freeSoundResultIndex = index
+			sound = self.api.get_sound(i['id']).json()
+			self.freeSoundButton.configure(text="Downloading")
+			filename = self.api.download_sound(sound, self.api.get_preview(sound))
+			self.load_file(filename)
+			self.create_waveform_file()
+			break
+		
+		self.freeSoundButton.configure(text=str(self.freeSoundResultIndex + 1) + "/" + str(self.freeSoundCount))
+
+
+	def freesound_query(self):
+		var = askstring("Freesound query", "")
+		print(var)
+		if not var:
+			return
+
+		json = self.api.get_audio(var).json()
+		self.freeSoundResult = json
+		self.freeSoundCount = len(self.freeSoundResult['results'])
+		self.select_freesound(0)
+		print(var)
+
 	def delete_file(self):
 		self.manager.remove(self)
 
@@ -162,8 +223,10 @@ class Sample(Frame):
 		self.waveform_image = PIL.ImageTk.PhotoImage(opendata)
 
 
-	def load_file(self):
-		fname = askopenfilename()
+	def load_file(self, fname):
+		if not fname:
+			fname = askopenfilename()
+
 		if fname:
 
 			if self.filename is None:

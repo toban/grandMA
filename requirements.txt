@@ -1,2 +1,5 @@
 simpleaudio
 bitarray
+mock
+requests
+dotenv

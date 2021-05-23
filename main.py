@@ -16,6 +16,20 @@ from tkinter.filedialog import askdirectory
 from tkinter.messagebox import askokcancel
 from tkinter.messagebox import showerror
 
+
+import tkinter as tk
+from tkinter import ttk
+
+import tkinter as tk
+from tkinter import ttk
+import tkinter.messagebox as tkMessageBox
+import tkinter.simpledialog as tkSimpleDialog
+from tkinter.simpledialog import Dialog
+
+import tkinter.messagebox as tkMessageBox
+import tkinter.simpledialog as tkSimpleDialog
+from tkinter.simpledialog import Dialog
+
 import os
 from os import listdir
 from os.path import isfile, join
