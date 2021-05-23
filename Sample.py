@@ -162,11 +162,11 @@ class Sample(Frame):
 		self.freeSoundButton.grid(row=1, column=6, sticky=W)
 
 		self.prevFreeSound = Button(self, text="<", command=self.prev_freesound, width=1, height=1)
-		self.prevFreeSound.grid(row=1, column=7, sticky=W)
-
 		self.nextFreeSound = Button(self, text=">", command=self.next_freesound, width=1, height=1)
-		self.nextFreeSound.grid(row=1, column=8, sticky=W)
-
+		
+		self.nextFreeSound.grid_forget()
+		self.nextFreeSound.grid_forget()
+		
 		self.freeSoundResult = None
 		self.freeSoundCount = 0
 		self.freeSoundResultIndex = 0
@@ -200,6 +200,7 @@ class Sample(Frame):
 			break
 		
 		self.freeSoundButton.configure(text=str(self.freeSoundResultIndex + 1) + "/" + str(self.freeSoundCount))
+		self.manager.show_waveform(self)
 
 
 	def freesound_query(self):
@@ -212,6 +213,9 @@ class Sample(Frame):
 		self.freeSoundResult = json
 		self.freeSoundCount = len(self.freeSoundResult['results'])
 		self.select_freesound(0)
+		self.prevFreeSound.grid(row=1, column=7, sticky=W)
+		self.nextFreeSound.grid(row=1, column=8, sticky=W)
+		
 		print(var)
 
 	def delete_file(self):
