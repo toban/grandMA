@@ -80,7 +80,25 @@ mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
 mainframe.columnconfigure(0, weight=1)
 mainframe.rowconfigure(0, weight=1)
 
-sd_var = askdirectory(initialdir="/media/")#"/media/toban/GRANDPA2"
+import os
+import pwd
+
+username = pwd.getpwuid( os.getuid() )[ 0 ]
+
+foundPath = None
+path = "/media/" + username ## TOOD IF NOT LINUX
+for start, dirs, files in os.walk(path):
+	for name in dirs:
+		if name == '.grandMA':
+			foundPath = start
+			print(start)
+			break
+
+if not foundPath:
+	sd_var = askdirectory(initialdir=path)
+else:
+	sd_var = foundPath
+
 manager = ManagerFrame(mainframe, sd_var)
 editor = PresetEditor(nb, sd_var, manager)
 

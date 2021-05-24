@@ -149,11 +149,11 @@ class Sample(Frame):
 		#self.scale = Scale(self.master, from_=0, to=200, orient=HORIZONTAL, width=10)
 		#self.scale.grid(row=2, column=1)
 
-		self.buttonBrowse = Button(self, text="Browse", command=self.load_file, width=4, height=1)
-		self.buttonBrowse.grid(row=1, column=3, sticky=W)
+		self.buttonPlay = Button(self, text="Play", command=self.playback, width=3, height=1)
+		self.buttonPlay.grid(row=1, column=3, sticky=W)
 
-		self.buttonPlay = Button(self, text="Play", command=self.playback, width=5, height=1)
-		self.buttonPlay.grid(row=1, column=4, sticky=W)
+		self.buttonBrowse = Button(self, text="Browse", command=self.load_file, width=4, height=1)
+		self.buttonBrowse.grid(row=1, column=4, sticky=W)
 
 		self.buttonDelete = Button(self, text="Delete", command=self.delete_file, width=3, height=1)
 		self.buttonDelete.grid(row=1, column=5, sticky=W)
