@@ -4,7 +4,7 @@ from tkinter.filedialog import askdirectory
 from tkinter.messagebox import askokcancel
 
 from Sample import *
-import PIL
+from PIL import Image, ImageDraw
 
 from Preset import *
 from PresetSound import *
@@ -53,6 +53,11 @@ class ManagerFrame(Frame):
 		self.button_load = Button(master, text="load", command=self.load_samples, width=10, height=1)
 		self.button_load.grid(row=1, column=2, sticky=W)
 
+		self.waveform_bg_width = 640
+		self.waveform_bg_height = 120
+
+		self.waveform_image_pil = None
+
 		if os.path.exists(self.grandmaPath):
 			self.load_samples()
 
@@ -73,10 +78,9 @@ class ManagerFrame(Frame):
 		return onlyfiles
 
 	def update_playback(self, sample, time):
-		percentage = (time / (sample.total_duration_ms*1.0))
-		#print(str(sample.grandpa_name) + " time: " + str(time) + " percentage: " + str(percentage))
+		percentage = (time / (sample.total_duration_ms))
 		self.scaler.set(percentage*100.0)
-
+		print("percentage: " + str(percentage) + " time: " + str(time) + " total_duration: " + str(sample.total_duration_ms))
 
 	def show_waveform(self, sample):
 
@@ -164,7 +168,7 @@ class ManagerFrame(Frame):
 
 			#self.canvas.create_image(20,20, anchor=NW, image=self.waveform_image)
 
-			self.waveform_label = Label(self.waveformFrame, text="ASDASFA")
+			self.waveform_label = Label(self.waveformFrame, text="waveform")
 			self.waveform_label.grid(row=0, column=0, sticky=N) 
 
 			self.scaler = Scale(self.waveformFrame,fg="black", bg="black", bd=0, from_=0, to=100, orient=HORIZONTAL, length=640, showvalue=False, takefocus=False)
@@ -179,9 +183,10 @@ class ManagerFrame(Frame):
 
 				sample = Sample(segments[0], file, self.sd_var.get(), self)
 				if counter == 0:
-					opendata = PIL.Image.open(sample.get_waveform_path())
-					self.waveform_image = PIL.ImageTk.PhotoImage(opendata)
+					self.waveform_image_pil = PIL.Image.open(sample.get_waveform_path()).convert('RGB')
+					self.waveform_image = PIL.ImageTk.PhotoImage(self.waveform_image_pil)
 					self.waveform_label.configure(image=self.waveform_image)
+					
 				counter += 1
 				self.samples[segments[0]] = sample
 

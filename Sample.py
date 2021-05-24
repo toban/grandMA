@@ -26,14 +26,16 @@ class Sample(Frame):
 		return self.file_path + "/" + self.filename
 
 	def monitor_playback(self):
-
+		import time
+		
 		start = 0
 		while self.play_obj != None and self.play_obj.is_playing():
-			start += 10.0
+			millis = int(round(time.time() * 1000))
 			self.manager.update_playback(self, start)
 			time.sleep(0.01)
+			millisAfter = int(round(time.time() * 1000))
+			start += millisAfter - millis
 
-		self.manager.update_playback(self, self.total_duration_ms)
 		self.buttonPlay.configure(text="Play")
 
 
@@ -41,11 +43,11 @@ class Sample(Frame):
 
 		if self.play_obj == None or self.play_obj != None and not self.play_obj.is_playing():
 			sa.stop_all()
-			start_new_thread(self.monitor_playback,())
 			self.play_obj = self.wave_obj.play()
 			print(self.play_obj)
 			self.manager.show_waveform(self)
 			self.buttonPlay.configure(text="[ Stop ]")
+			start_new_thread(self.monitor_playback,())
 
 		elif self.play_obj != None and self.play_obj.is_playing():
 			self.play_obj.stop()
@@ -116,6 +118,8 @@ class Sample(Frame):
 
 		self.file_path = filePath
 
+		self.waveform_image_pil = None
+
 		if origFilename != None:
 
 			self.filename = labelText + ".wav"
@@ -128,7 +132,8 @@ class Sample(Frame):
 			if(not isfile(self.get_waveform_path())):
 				self.create_waveform_file()
 
-			opendata = PIL.Image.open(self.get_waveform_path())
+			opendata = PIL.Image.open(self.get_waveform_path()).convert('RGBA')
+			self.waveform_image_pil = opendata
 			self.waveform_image = PIL.ImageTk.PhotoImage(opendata)
 			
 		else:
@@ -223,8 +228,8 @@ class Sample(Frame):
 
 	def create_waveform_file(self):
 		subprocess.check_output(["ffmpeg", "-i", self.get_full_path(), "-y", "-filter_complex", "showwavespic=s=640x120", "-frames:v",  "1", self.get_waveform_path()])
-		opendata = PIL.Image.open(self.get_waveform_path())
-		self.waveform_image = PIL.ImageTk.PhotoImage(opendata)
+		self.waveform_image_pil = PIL.Image.open(self.get_waveform_path()).convert('RGBA')
+		self.waveform_image = PIL.ImageTk.PhotoImage(self.waveform_image_pil)
 
 
 	def load_file(self, fname):
