@@ -32,7 +32,7 @@ import bitarray
 from subprocess import call
 from os import system
 from platform import system as platform
-
+import traceback
 # set up your Tk Frame and whatnot here...
 
 def calculate(*args):
@@ -45,6 +45,24 @@ def calculate(*args):
 
 root = Tk()
 root.title("GrandMA: GrandPA Manager")
+
+def report_callback_exception(exc, val, tb): 
+	print('')
+	print('')
+	print('################################################')
+	print('################ OOOOOOOOOOPS! #################')
+	print('################################################')
+	print('################################################')
+	print('')
+	print(exc, val)
+	print('')
+	for i in traceback.format_tb(tb):
+		print(i)
+	#traceback.print_last()
+	root.destroy()
+	sys.exit()
+
+root.report_callback_exception = report_callback_exception
 
 def find_all(name, path):
     result = []
@@ -62,10 +80,10 @@ def on_closing():
 root.protocol("WM_DELETE_WINDOW", on_closing)
 
 nb = ttk.Notebook(root)
-mainframe = ttk.Frame(nb, padding="3 3 12 12")
-mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
-mainframe.columnconfigure(0, weight=1)
-mainframe.rowconfigure(0, weight=1)
+mainframe = ttk.Frame(nb, padding="3 3 3 3")
+mainframe.grid(column=0, row=0)
+mainframe.columnconfigure(0, weight=0)
+mainframe.rowconfigure(0, weight=0)
 
 root.update()
 
@@ -74,12 +92,18 @@ if platform() == 'Darwin':
 else:
 	initialdir = "/media/"
 	
-sd_var = askdirectory(initialdir=initialdir)#"/media/toban/GRANDPA2"
-manager = ManagerFrame(mainframe, sd_var)
-editor = PresetEditor(nb, sd_var, manager)
+sd_var = '/Volumes/GRANDPA/' #= askdirectory(initialdir='/Volumes/GRANDPA/')#"/media/toban/GRANDPA2"
+
+
+manager = ManagerFrame(mainframe, '/Volumes/GRANDPA/')
+manager.grid(row=0, column=1)
+mainframe.grid_columnconfigure(0, weight=1)
+mainframe.grid_columnconfigure(3, weight=1)
+#editor = PresetEditor(nb, sd_var, manager)
 
 nb.add(mainframe, text='Samples')
-nb.add(editor, text='Presets')
+#nb.add(editor, text='Presets')
 nb.grid(column=0)
+
 
 root.mainloop()

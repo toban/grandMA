@@ -4,6 +4,7 @@ from tkinter.filedialog import askdirectory
 from tkinter.messagebox import askokcancel
 
 from Sample import *
+from SampleUI import *
 import PIL
 
 from Preset import *
@@ -18,8 +19,8 @@ class ManagerFrame(Frame):
 	def __init__(self, master, sd_path):
 		Frame.__init__(self, master)
 		self.root = master
-		self.master.rowconfigure(1, weight=1)
-		self.master.columnconfigure(1, weight=1)
+		self.rowconfigure(1, weight=1)
+		self.columnconfigure(1, weight=1)
 		self.grid(sticky=W+E+N+S)
 
 		self.valid_names = []
@@ -44,13 +45,13 @@ class ManagerFrame(Frame):
 		if not os.path.exists(self.grandmaImagePath):
 			os.makedirs(self.grandmaImagePath)
 
-		self.filename_label = Entry(master, textvariable=self.sd_var, width=48)
+		self.filename_label = Entry(self, textvariable=self.sd_var, width=48)
 		self.filename_label.grid(row=1, column=1, sticky=W)
 
-		self.button_sd_path = Button(master, text="Select SD path", command=self.load_path, width=10, height=1)
+		self.button_sd_path = Button(self, text="Select SD path", command=self.load_path, width=10, height=1)
 		self.button_sd_path.grid(row=1, column=0, sticky=W)
 
-		self.button_load = Button(master, text="load", command=self.load_samples, width=10, height=1)
+		self.button_load = Button(self, text="load", command=self.load_samples, width=10, height=1)
 		self.button_load.grid(row=1, column=2, sticky=W)
 
 		if os.path.exists(self.grandmaPath):
@@ -80,8 +81,6 @@ class ManagerFrame(Frame):
 
 	def show_waveform(self, sample):
 
-		print(sample.get_waveform_path())
-
 		self.waveform_label.configure(image=sample.waveform_image)
 
 	def delete_all(self):
@@ -90,7 +89,6 @@ class ManagerFrame(Frame):
 
 	def add_new_multi(self):
 		files = askopenfilenames()
-		print(files)
 
 	def add_new(self):
 		name = None
@@ -99,7 +97,7 @@ class ManagerFrame(Frame):
 			if not name in self.samples:
 				break
 
-		self.samples[name] = Sample(name, None, self.sd_var.get(), self)
+		self.samples[name] = SampleUI(name, None, Sample(None, self.sd_var.get()), self)
 		print("add new " + name)
 		self.samples[name].load_file()
 		self.samples[name].create_waveform_file()
@@ -115,7 +113,6 @@ class ManagerFrame(Frame):
 			
 			sample.grid_forget()
 			the_actual_sample = self.samples[sample.grandpa_name]
-			print(the_actual_sample)
 
 
 
@@ -126,21 +123,24 @@ class ManagerFrame(Frame):
 		files = self.get_files(self.sd_var.get())
 		#print(self.valid_names)
 
-		self.button_sd_path.grid_forget()
-		self.filename_label.grid_forget()
-		self.button_load.grid_forget()
+		#self.button_sd_path.grid_forget()
+		#self.filename_label.grid_forget()
+		#self.button_load.grid_forget()
+		button_width = 12
+		self.button_new_slice = Button(self, text="+ add & slice", command=self.add_new, width=button_width, height=1)
+		self.button_new_slice.grid(row=3, column=1, sticky=W)
 
-		self.button_new = Button(self, text="+ add new", command=self.add_new, width=20, height=1)
-		self.button_new.grid(row=3, column=0, sticky=W)
+		self.button_new = Button(self, text="+ add new", command=self.add_new, width=button_width, height=1)
+		self.button_new.grid(row=3, column=2, sticky=W)
 
-		self.button_new_multi = Button(self, text="+ add multiple", command=self.add_new_multi, width=20, height=1)
-		self.button_new_multi.grid(row=3, column=1, sticky=W)
+		self.button_new_multi = Button(self, text="+ add multiple", command=self.add_new_multi, width=button_width, height=1)
+		self.button_new_multi.grid(row=3, column=3, sticky=W)
 
-		self.button_delete_all = Button(self, text="delete all", command=self.delete_all, width=20, height=1)
-		self.button_delete_all.grid(row=3, column=2, sticky=W)
+		self.button_delete_all = Button(self, text="delete all", command=self.delete_all, width=button_width, height=1)
+		self.button_delete_all.grid(row=3, column=4, sticky=W)
 
-		self.select_path = Button(self, text="select path", command=self.load_path, width=20, height=1)
-		self.select_path.grid(row=3, column=3, sticky=W)
+		self.select_path = Button(self, text="select path", command=self.load_path, width=button_width, height=1)
+		self.select_path.grid(row=3, column=5, sticky=W)
 
 #		self.menu_variable = StringVar(self)
 #		self.menu_variable.set("one") # default value
@@ -154,7 +154,7 @@ class ManagerFrame(Frame):
 
 		if self.waveform_image == None:
 
-			self.waveformFrame = Frame(self.master)
+			self.waveformFrame = Frame(self)
 			self.waveformFrame.rowconfigure(1, weight=1)
 			self.waveformFrame.columnconfigure(1, weight=1)
 			self.waveformFrame.grid(sticky=W+E+N+S)
@@ -177,7 +177,7 @@ class ManagerFrame(Frame):
 
 			if segments[0] in self.valid_names and (segments[1] == "wav" or segments[1] == "WAV"):
 
-				sample = Sample(segments[0], file, self.sd_var.get(), self)
+				sample = SampleUI(segments[0], file, Sample(file, self.sd_var.get()), self)
 				if counter == 0:
 					opendata = PIL.Image.open(sample.get_waveform_path())
 					self.waveform_image = PIL.ImageTk.PhotoImage(opendata)
